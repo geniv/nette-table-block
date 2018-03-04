@@ -1,14 +1,14 @@
-Nette general form
-==================
+Table block
+===========
 
 Installation
 ------------
 ```sh
-$ composer require geniv/nette-general-form
+$ composer require geniv/nette-table-block
 ```
 or
 ```json
-"geniv/nette-general-form": ">=1.0.0"
+"geniv/nette-table-block": ">=1.0.0"
 ```
 
 require:
@@ -20,76 +20,35 @@ require:
 
 Include in application
 ----------------------
-usage _IEvent_:
-```php
-class MyEvent implements IEvent
-
-...
-
-public function update(IEventContainer $eventContainer, array $values)
-
-...
-$eventContainer->getForm()
-$eventContainer->setValues($values)
-$eventContainer->getComponent()
-```
-
-usage _IFormContainer_ and _IEventContainer_ (can use magic `__invoke` method):
-```php
-private $formContainer;
-private $eventContainer;
-public $onSuccess, $onException;
-
-public function __construct(IFormContainer $formContainer, array $events)
-
-...
-
-// $this->eventContainer = EventContainer::factory($this, $events, 'onSuccess', 'onException');
-$this->eventContainer = EventContainer::factory($this, $events);
-$this->formContainer = $formContainer;
-
-...
-
-$form->onSuccess[] = $this->eventContainer;
-```
-or _the old way_ without `__invoke`:
-```php
-try {
-    $this->notify($form, $values);
-    $this->onSuccess($values);
-} catch (EventException $e) {
-    $this->onException($e);
-}
-```
-
-usage _ITemplatePath_ (without return type!):
-```php
-class MyForm extends Control implements ITemplatePath
-
-...
-
-public function setTemplatePath(string $path)
-{
-    $this->templatePath = $path;
-}
-```
-
-Events for use (implements `IEvent`)
----------------
+neon configure:
 ```neon
-- DumpEvent
-- FireLogEvent
-- ClearFormEvent
+services:
+    - TableBlock
 ```
 
-Extension
----------
-usage _GeneralForm_:
+usage:
 ```php
-$formContainer = GeneralForm::getDefinitionFormContainer($this);
-$events = GeneralForm::getDefinitionEventContainer($this);
+protected function createComponentStudioBlock(TableBlock $tableBlock): TableBlock
+{
+    $studioBlock = clone $tableBlock;
+    $studioBlock->setTemplatePath(__DIR__ . '/templates/Studio/studioBlock.latte');
+    $studioBlock->addVariableTemplate('listStudio', $this->listStudio);
+    return $studioBlock;
+}
 ```
 
-Exception
----------
-class: `EventException`
+usage:
+```latte
+{control studioBlock}
+```
+
+usage in template:
+```latte
+<div n:foreach="$listStudio as $item">
+    <h1>{$item['title']}</h1>
+</div>
+
+{if !$iterations}
+    no items
+{/if}
+```

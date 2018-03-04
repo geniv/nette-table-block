@@ -18,8 +18,6 @@ class TableBlock extends Control implements ITemplatePath
     private $templatePath;
     /** @var array */
     private $variableTemplate = [];
-    /** @var array */
-    private $list = [];
 
 
     /**
